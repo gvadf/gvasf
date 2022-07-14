@@ -1,0 +1,115 @@
+{
+	"name": "Sample_Dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Sample_Dataset",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "Sample_Dataset_II",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Sample_Dataset_D",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "unpivot1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Emp_ID as string,",
+				"          Emp_name as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source(output(",
+				"          Emp_ID as string,",
+				"          Emp_Dept as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source2",
+				"source1 aggregate(groupBy(Emp_name),",
+				"     each(match(name!=\"Emp_name\"), $$ = last($$))) ~> aggregate1",
+				"aggregate1, source2 join(aggregate1@Emp_ID == source2@Emp_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"aggregate2 derive(IT_EMP = equals(Emp_Dept, \"1\"),",
+				"          Non_IT = equals(Emp_Dept, \"2\")) ~> derivedColumn1",
+				"join1 select(mapColumn(",
+				"          Emp_name,",
+				"          Emp_ID = aggregate1@Emp_ID,",
+				"          Emp_Dept",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 aggregate(groupBy(Emp_ID),",
+				"     each(match(name!=\"Emp_ID\"), $$ = last($$))) ~> aggregate2",
+				"derivedColumn1 unpivot(output(",
+				"          namewe as boolean,",
+				"          IT_EMP as boolean,",
+				"          Non_IT as boolean",
+				"     ),",
+				"     ungroupBy(Emp_ID,",
+				"          Emp_name,",
+				"          Emp_Dept),",
+				"     lateral: true,",
+				"     ignoreNullPivots: false) ~> unpivot1",
+				"unpivot1 derive(IT_EMP = toString(IT_EMP)) ~> derivedColumn2",
+				"derivedColumn2 filter(IT_EMP==\"true\") ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          Emp_ID,",
+				"          Emp_name,",
+				"          Emp_Dept,",
+				"          Dept_Name = namewe",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

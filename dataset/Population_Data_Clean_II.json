@@ -1,0 +1,25 @@
+{
+	"name": "Population_Data_Clean_II",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blol_linked_Service I",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "population-1950-1999.csv",
+				"folderPath": "population",
+				"container": "inputfloder"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

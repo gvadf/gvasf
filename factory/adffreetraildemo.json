@@ -1,0 +1,9 @@
+{
+	"name": "adffreetraildemo",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "14f2641d-f0b1-4f11-af55-8aee1ec840a8",
+		"tenantId": "ff923673-4b17-453e-aaaf-f1a3c83308a5"
+	}
+}

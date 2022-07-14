@@ -1,0 +1,34 @@
+{
+	"name": "Sample_Dataset_II",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blol_linked_Service I",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "sample1.txt",
+				"folderPath": "population",
+				"container": "inputfloder"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Emp_ID",
+				"type": "String"
+			},
+			{
+				"name": "Emp_Dept",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

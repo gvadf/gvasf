@@ -1,0 +1,104 @@
+{
+	"name": "Population_Data_Cleaning",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Population_Data_Clean_I",
+						"type": "DatasetReference"
+					},
+					"name": "PopulationI"
+				},
+				{
+					"dataset": {
+						"referenceName": "Population_Data_Clean_II",
+						"type": "DatasetReference"
+					},
+					"name": "PopulationII"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Population_Data_D",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Union"
+				},
+				{
+					"name": "columntrans"
+				},
+				{
+					"name": "Totalpopulation"
+				},
+				{
+					"name": "surrogateKey1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          LocID as integer,",
+				"          Location as string,",
+				"          Time as integer,",
+				"          AgeGrp as integer,",
+				"          AgeGrpStart as integer,",
+				"          AgeGrpSpan as short,",
+				"          PopMale as integer,",
+				"          PopFemale as integer,",
+				"          PopTotal as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     skipLines: 1,",
+				"     partitionBy('hash', 1)) ~> PopulationI",
+				"source(output(",
+				"          LocID as integer,",
+				"          Location as string,",
+				"          Time as integer,",
+				"          AgeGrp as integer,",
+				"          AgeGrpStart as integer,",
+				"          AgeGrpSpan as short,",
+				"          PopMale as integer,",
+				"          PopFemale as integer,",
+				"          PopTotal as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     skipLines: 1,",
+				"     partitionBy('hash', 1)) ~> PopulationII",
+				"PopulationI, PopulationII union(byName: true)~> Union",
+				"Union select(mapColumn(",
+				"          Country_ID = LocID,",
+				"          Country = Location,",
+				"          Year = Time,",
+				"          Age_Group = AgeGrp,",
+				"          Age_Group_Starts = AgeGrpStart,",
+				"          Age_Group_End = AgeGrpSpan,",
+				"          Male_Population = PopMale,",
+				"          Female_Population = PopFemale",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> columntrans",
+				"columntrans derive(Total_Population = Male_Population+Female_Population) ~> Totalpopulation",
+				"Totalpopulation keyGenerate(output({S.No} as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Population'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

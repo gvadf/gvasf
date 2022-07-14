@@ -1,0 +1,24 @@
+{
+	"name": "Sample_Dataset_D",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blob_linked_Service_II",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "bulkpopulation",
+				"container": "populationoutput"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
